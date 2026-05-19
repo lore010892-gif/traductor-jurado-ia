@@ -6,10 +6,9 @@ import pytesseract
 
 from deep_translator import GoogleTranslator
 from pdf2image import convert_from_path
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from xhtml2pdf import pisa
 
-# TESSERACT PARA STREAMLIT CLOUD
+# TESSERACT LINUX / DOCKER
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 st.set_page_config(page_title="Traductor Jurado IA")
@@ -75,7 +74,11 @@ if uploaded_file:
         fecha_nacimiento = "NO DETECTADO"
         lugar_nacimiento = "NO DETECTADO"
         estado_civil = "NO DETECTADO"
+        tribunal = "Tribunal de Blida"
+        fecha_sentencia = "NO DETECTADO"
+        observaciones = "Sin observaciones"
 
+        # BUSCAR FECHA
         fecha_match = re.search(
             r"\d{2}/\d{2}/\d{4}",
             texto_traducido
@@ -84,7 +87,9 @@ if uploaded_file:
         if fecha_match:
 
             fecha_nacimiento = fecha_match.group()
+            fecha_sentencia = fecha_match.group()
 
+        # ESTADO CIVIL
         if "casado" in texto_traducido.lower():
 
             estado_civil = "Casado"
@@ -93,6 +98,7 @@ if uploaded_file:
 
             estado_civil = "Soltero"
 
+        # NOMBRE
         lineas = texto_traducido.split("\n")
 
         for linea in lineas:
@@ -104,6 +110,7 @@ if uploaded_file:
                     ""
                 ).strip()
 
+        # LUGAR NACIMIENTO
         lugar_match = re.search(
             r"en:\s*([A-Za-zÁÉÍÓÚáéíóúñÑ\s]+)",
             texto_traducido
@@ -113,116 +120,122 @@ if uploaded_file:
 
             lugar_nacimiento = lugar_match.group(1).strip()
 
-        # CREAR PDF
+        # TEXTO MÁS LARGO
+        resultado = texto_traducido[:600]
+
+        # CARGAR HTML
+        with open(
+            "plantillas/penales_argelia.html",
+            "r",
+            encoding="utf-8"
+        ) as archivo_html:
+
+            plantilla_html = archivo_html.read()
+
+        # REEMPLAZAR VARIABLES
+        html_final = plantilla_html.format(
+            nombre=nombre,
+            fecha_nacimiento=fecha_nacimiento,
+            lugar_nacimiento=lugar_nacimiento,
+            estado_civil=estado_civil,
+            tribunal=tribunal,
+            fecha_sentencia=fecha_sentencia,
+            resultado=resultado,
+            observaciones=observaciones
+        )
+
         if not os.path.exists("resultados"):
             os.makedirs("resultados")
 
-        pdf_path = "resultados/documento_final.pdf"
+        # GENERAR PDF
+        pdf_generado = "resultados/documento_traducido.pdf"
 
-        c = canvas.Canvas(
-            pdf_path,
-            pagesize=letter
-        )
+        with open(
+            pdf_generado,
+            "wb"
+        ) as pdf_file:
 
-        # TÍTULO
-        c.setFont("Helvetica-Bold", 15)
+            pisa.CreatePDF(
+                html_final,
+                dest=pdf_file
+            )
 
-        c.drawString(
-            150,
-            770,
-            "TRADUCCIÓN JURADA DEL ÁRABE"
-        )
-
-        # DATOS
-        c.setFont("Helvetica", 11)
-
-        c.drawString(
-            70,
-            720,
-            f"Nombre: {nombre}"
-        )
-
-        c.drawString(
-            70,
-            700,
-            f"Fecha de nacimiento: {fecha_nacimiento}"
-        )
-
-        c.drawString(
-            70,
-            680,
-            f"Lugar de nacimiento: {lugar_nacimiento}"
-        )
-
-        c.drawString(
-            70,
-            660,
-            f"Estado civil: {estado_civil}"
-        )
-
-        # TEXTO TRADUCIDO
-        c.setFont("Helvetica", 10)
-
-        texto = c.beginText(
-            70,
-            620
-        )
-
-        lineas_traducidas = texto_traducido.split("\n")
-
-        for linea in lineas_traducidas[:30]:
-
-            texto.textLine(linea)
-
-        c.drawText(texto)
-
-        # FIRMA
-        c.setFont("Helvetica-Oblique", 10)
-
-        c.drawString(
-            320,
-            120,
-            "Documento generado automáticamente"
-        )
-
-        c.save()
-
-        # INSERTAR SELLO
-        pdf_documento = fitz.open(pdf_path)
+        # ABRIR PDF PARA SELLOS
+        pdf_documento = fitz.open(pdf_generado)
 
         sello_path = "sellos/sello_mariam.png"
 
-        pagina = pdf_documento[0]
+        # PÁGINA 1
+        pagina1 = pdf_documento[0]
 
-        rect = fitz.Rect(
+        rect1 = fitz.Rect(
             430,
-            720,
+            760,
             530,
-            820
+            860
         )
 
-        pagina.insert_image(
-            rect,
+        pagina1.insert_image(
+            rect1,
             filename=sello_path,
             overlay=True
         )
 
+        # PÁGINA 2
+        if len(pdf_documento) > 1:
+
+            pagina2 = pdf_documento[1]
+
+            rect2 = fitz.Rect(
+                390,
+                640,
+                510,
+                760
+            )
+
+            pagina2.insert_image(
+                rect2,
+                filename=sello_path,
+                overlay=True
+            )
+
         pdf_documento.save(
-            "resultados/documento_final_sellado.pdf"
+            "resultados/documento_traducido_sellado.pdf"
         )
 
         pdf_documento.close()
 
-        st.success("PDF generado correctamente ✅")
+        # UNIR TRADUCCIÓN + ORIGINAL
+        pdf_final = fitz.open()
+
+        pdf_traducido = fitz.open(
+            "resultados/documento_traducido_sellado.pdf"
+        )
+
+        pdf_original = fitz.open(ruta_pdf)
+
+        # PRIMERO TRADUCCIÓN
+        pdf_final.insert_pdf(pdf_traducido)
+
+        # DESPUÉS ORIGINAL
+        pdf_final.insert_pdf(pdf_original)
+
+        pdf_final.save(
+            "resultados/documento_final_unido.pdf"
+        )
+
+        pdf_final.close()
+
+        st.success("Documento final generado correctamente ✅")
 
         with open(
-            "resultados/documento_final_sellado.pdf",
+            "resultados/documento_final_unido.pdf",
             "rb"
-        ) as pdf_file:
+        ) as archivo_final:
 
             st.download_button(
-                label="📥 Descargar PDF",
-                data=pdf_file,
+                label="📥 Descargar PDF Final",
+                data=archivo_final,
                 file_name="documento_final.pdf",
                 mime="application/pdf"
             )
