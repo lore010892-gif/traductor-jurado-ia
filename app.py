@@ -6,7 +6,6 @@ import pytesseract
 
 from deep_translator import GoogleTranslator
 from pdf2image import convert_from_path
-from xhtml2pdf import pisa
 
 # RUTA TESSERACT
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -151,95 +150,27 @@ if uploaded_file:
         if not os.path.exists("resultados"):
             os.makedirs("resultados")
 
-        # GENERAR PDF
-        pdf_generado = "resultados/documento_traducido.pdf"
+        # GUARDAR HTML TEMPORAL
+        archivo_html_generado = "resultados/documento_traducido.html"
 
         with open(
-            pdf_generado,
-            "wb"
-        ) as pdf_file:
+            archivo_html_generado,
+            "w",
+            encoding="utf-8"
+        ) as archivo_final_html:
 
-            pisa.CreatePDF(
-                html_final,
-                dest=pdf_file
-            )
+            archivo_final_html.write(html_final)
 
-        # ABRIR PDF PARA SELLOS
-        pdf_documento = fitz.open(pdf_generado)
-
-        sello_path = "sellos/sello_mariam.png"
-
-        # PÁGINA 1
-        pagina1 = pdf_documento[0]
-
-        rect1 = fitz.Rect(
-            430,
-            760,
-            530,
-            860
-        )
-
-        pagina1.insert_image(
-            rect1,
-            filename=sello_path,
-            overlay=True
-        )
-
-        # PÁGINA 2
-        if len(pdf_documento) > 1:
-
-            pagina2 = pdf_documento[1]
-
-            rect2 = fitz.Rect(
-                390,
-                640,
-                510,
-                760
-            )
-
-            pagina2.insert_image(
-                rect2,
-                filename=sello_path,
-                overlay=True
-            )
-
-        pdf_documento.save(
-            "resultados/documento_traducido_sellado.pdf"
-        )
-
-        pdf_documento.close()
-
-        # UNIR TRADUCCIÓN + ORIGINAL
-        pdf_final = fitz.open()
-
-        pdf_traducido = fitz.open(
-            "resultados/documento_traducido_sellado.pdf"
-        )
-
-        pdf_original = fitz.open(ruta_pdf)
-
-        # PRIMERO TRADUCCIÓN
-        pdf_final.insert_pdf(pdf_traducido)
-
-        # DESPUÉS ORIGINAL
-        pdf_final.insert_pdf(pdf_original)
-
-        pdf_final.save(
-            "resultados/documento_final_unido.pdf"
-        )
-
-        pdf_final.close()
-
-        st.success("Documento final generado correctamente ✅")
+        st.success("Documento generado correctamente ✅")
 
         with open(
-            "resultados/documento_final_unido.pdf",
+            archivo_html_generado,
             "rb"
-        ) as archivo_final:
+        ) as archivo_descarga:
 
             st.download_button(
-                label="📥 Descargar PDF Final",
-                data=archivo_final,
-                file_name="documento_final.pdf",
-                mime="application/pdf"
+                label="📥 Descargar Documento",
+                data=archivo_descarga,
+                file_name="documento_traducido.html",
+                mime="text/html"
             )
