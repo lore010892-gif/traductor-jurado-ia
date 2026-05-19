@@ -6,7 +6,6 @@ import pytesseract
 
 from deep_translator import GoogleTranslator
 from pdf2image import convert_from_path
-from xhtml2pdf import pisa
 
 # TESSERACT LINUX / DOCKER
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
