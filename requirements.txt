@@ -3,6 +3,5 @@ pytesseract
 pdf2image
 deep-translator
 PyMuPDF
-xhtml2pdf
 reportlab
 Pillow
