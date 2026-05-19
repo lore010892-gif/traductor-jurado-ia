@@ -1,10 +1,6 @@
 streamlit
-PyPDF2
-reportlab
-pillow
-pymupdf
-pdf2image
 pytesseract
-openai
-requests
+pdf2image
 deep-translator
+PyMuPDF
+xhtml2pdf
