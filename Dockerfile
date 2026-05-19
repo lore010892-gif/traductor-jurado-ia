@@ -5,8 +5,21 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     poppler-utils \
-    libgl1 \
-    libglib2.0-0
+    gcc \
+    python3-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libopenjp2-7-dev \
+    libtiff5-dev \
+    tk-dev \
+    tcl-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libxcb1-dev
 
 COPY . /app
 
