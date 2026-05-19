@@ -122,42 +122,24 @@ if uploaded_file:
         # TEXTO MÁS LARGO
         resultado = texto_traducido[:600]
 
-        # CARGAR HTML
-        with open(
-            "plantillas/penales_argelia.html",
-            "r",
-            encoding="utf-8"
-        ) as archivo_html:
-
-            plantilla_html = archivo_html.read()
-
-        # REEMPLAZAR VARIABLES
-        html_final = plantilla_html.format(
-            nombre=nombre,
-            fecha_nacimiento=fecha_nacimiento,
-            lugar_nacimiento=lugar_nacimiento,
-            estado_civil=estado_civil,
-            tribunal=tribunal,
-            fecha_sentencia=fecha_sentencia,
-            resultado=resultado,
-            observaciones=observaciones
-        )
-
         if not os.path.exists("resultados"):
             os.makedirs("resultados")
 
-        # GENERAR PDF
+        # GENERAR PDF SIMPLE
         pdf_generado = "resultados/documento_traducido.pdf"
 
-        with open(
-            pdf_generado,
-            "wb"
-        ) as pdf_file:
+        doc = fitz.open()
 
-            pisa.CreatePDF(
-                html_final,
-                dest=pdf_file
-            )
+        pagina = doc.new_page()
+
+        pagina.insert_text(
+            (50, 50),
+            texto_traducido
+        )
+
+        doc.save(pdf_generado)
+
+        doc.close()
 
         # ABRIR PDF PARA SELLOS
         pdf_documento = fitz.open(pdf_generado)
@@ -179,24 +161,6 @@ if uploaded_file:
             filename=sello_path,
             overlay=True
         )
-
-        # PÁGINA 2
-        if len(pdf_documento) > 1:
-
-            pagina2 = pdf_documento[1]
-
-            rect2 = fitz.Rect(
-                390,
-                640,
-                510,
-                760
-            )
-
-            pagina2.insert_image(
-                rect2,
-                filename=sello_path,
-                overlay=True
-            )
 
         pdf_documento.save(
             "resultados/documento_traducido_sellado.pdf"
