@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+body{{
+    font-family: Times New Roman;
+    margin: 60px;
+    font-size: 14px;
+    line-height: 1.8;
+}}
+
+.titulo{{
+    text-align:center;
+    font-weight:bold;
+    font-size:18px;
+    text-transform:uppercase;
+}}
+
+.subtitulo{{
+    text-align:center;
+    font-weight:bold;
+    margin-top:10px;
+}}
+
+.centrado{{
+    text-align:center;
+}}
+
+.tabla{{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:25px;
+}}
+
+.tabla td,
+.tabla th{{
+    border:1px solid black;
+    padding:8px;
+    text-align:center;
+    vertical-align:top;
+}}
+
+.seccion{{
+    margin-top:25px;
+}}
+
+.resultado{{
+    margin-top:30px;
+    text-align:justify;
+}}
+
+.firma{{
+    margin-top:60px;
+}}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="titulo">
+TRADUCCIÓN JURADA DEL ÁRABE
+</div>
+
+<div class="subtitulo">
+REPÚBLICA ARGELINA DEMOCRÁTICA Y POPULAR
+<br>
+MINISTERIO DE JUSTICIA
+<br>
+JUZGADO DE BLIDA
+<br>
+SECRETARÍA JUDICIAL
+</div>
+
+<div class="seccion centrado">
+
+EXTRACTO DE CONDENAS PENALES PRIVATIVAS DE LIBERTAD Y
+SANCIONES PRONUNCIADAS POR JURISDICCIONES DE LA
+REPÚBLICA ARGELINA POR CRIMEN O DELITO.
+
+</div>
+
+<div class="seccion">
+
+<b>Nombre:</b> {nombre}
+<br><br>
+
+<b>Fecha de nacimiento:</b> {fecha_nacimiento}
+<br><br>
+
+<b>Lugar de nacimiento:</b> {lugar_nacimiento}
+<br><br>
+
+<b>Estado civil:</b> {estado_civil}
+
+</div>
+
+<table class="tabla">
+
+<tr>
+<th>Tribunal</th>
+<th>Fecha</th>
+<th>Observaciones</th>
+</tr>
+
+<tr>
+<td>{tribunal}</td>
+<td>{fecha_sentencia}</td>
+<td>{observaciones}</td>
+</tr>
+
+</table>
+
+<div class="resultado">
+
+<b>Contenido traducido:</b>
+
+<br><br>
+
+{resultado}
+
+</div>
+
+<div class="seccion centrado">
+
+COPIA CONFORME AL ORIGINAL
+
+</div>
+
+<div class="firma">
+
+Dña María Belén Romero Moreno
+<br>
+Traductora-Intérprete Jurado de árabe.
+
+</div>
+
+</body>
+</html>

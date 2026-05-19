@@ -1,0 +1,18 @@
+TRADUCCIÓN JURADA
+
+MINISTERIO DE JUSTICIA
+
+CERTIFICADO DE ANTECEDENTES PENALES
+
+Nombre completo: {nombre}
+
+Fecha de nacimiento: {fecha_nacimiento}
+
+Lugar de nacimiento: {lugar_nacimiento}
+
+Estado civil: {estado_civil}
+
+Resultado:
+{resultado}
+
+Documento emitido oficialmente por las autoridades correspondientes de Argelia.
