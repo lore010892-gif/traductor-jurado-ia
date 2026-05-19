@@ -40,7 +40,6 @@ if uploaded_file:
 
         st.info("Convirtiendo PDF a imágenes...")
 
-        # STREAMLIT CLOUD YA USARÁ POPPLER INSTALADO
         imagenes = convert_from_path(
             ruta_pdf
         )
@@ -53,7 +52,7 @@ if uploaded_file:
 
             texto = pytesseract.image_to_string(
                 imagen,
-                lang="ara"
+                lang="eng"
             )
 
             texto_extraido += texto + "\n"
